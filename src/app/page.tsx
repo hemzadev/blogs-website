@@ -1,12 +1,14 @@
-import { Hero, AdSpace, BlogSection, Newsletter } from "@/components/layout/home";
+import { Hero, AdSpace, BlogSection, DrivesSection, Newsletter } from "@/components/layout/home"
 
 export default function Home() {
   return (
     <>
-      <AdSpace />
       <Hero />
+      <AdSpace />
       <BlogSection />
+      <DrivesSection />
       <Newsletter />
     </>
-  );
+  )
 }
+

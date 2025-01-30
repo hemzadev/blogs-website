@@ -1,4 +1,5 @@
-export { default as Hero } from './Hero';
-export { default as AdSpace } from './AdSpace';
-export { default as BlogSection } from './BlogsSection';
-export { default as Newsletter } from './Newsletter';
+export { Hero } from "./Hero"
+export { AdSpace } from "./AdSpace"
+export { BlogSection } from "./BlogsSection"
+export { Newsletter } from "./Newsletter"
+export { DrivesSection } from "./DrivesSection"

@@ -1,7 +1,7 @@
-import { Input } from "@/components/common/input";
-import { Button } from "@/components/common/button";
+import { Button } from "@/components/common/button"
+import { Input } from "@/components/common/input"
 
-export default function Newsletter() {
+export function Newsletter() {
   return (
     <section className="py-16 bg-primary/5">
       <div className="container px-4">
@@ -17,5 +17,6 @@ export default function Newsletter() {
         </div>
       </div>
     </section>
-  );
+  )
 }
+

@@ -1,99 +1,83 @@
-import Link from "next/link";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/common/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/common/tabs";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/common/avatar";
+import Link from "next/link"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/common/card"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/common/avatar"
+import { Button } from "@/components/common/button"
+import { ArrowRight } from "lucide-react"
 
-export default function BlogSection() {
+export function BlogSection() {
+  const blogs = Array(6)
+    .fill(null)
+    .map((_, i) => ({
+      id: i + 1,
+      title: `Blog Post ${i + 1}`,
+      description: "A deep dive into modern web development techniques and best practices.",
+      author: {
+        name: `Author ${i + 1}`,
+        avatar: "/placeholder.svg",
+      },
+      date: "Jan 1, 2024",
+    }))
+
+  const adSpaces = Array(2)
+    .fill(null)
+    .map((_, i) => ({
+      id: `ad-${i + 1}`,
+      content: "Ad Space",
+    }))
+
+  const combinedContent = [...blogs, ...adSpaces].sort(() => Math.random() - 0.5)
+
   return (
     <section className="py-16">
       <div className="container px-4">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          <div className="lg:col-span-3">
-            <Tabs defaultValue="recent" className="w-full">
-              <div className="flex items-center justify-between mb-8">
-                <h2 className="text-2xl font-bold">Latest Stories</h2>
-                <TabsList className="grid w-[200px] grid-cols-2">
-                  <TabsTrigger value="recent">Recent</TabsTrigger>
-                  <TabsTrigger value="popular">Popular</TabsTrigger>
-                </TabsList>
-              </div>
-
-              <TabsContent value="recent">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {[1, 2, 3].map((i) => (
-                    <Card key={i} className="group hover:shadow-lg transition-shadow border-none bg-background">
-                      <CardHeader className="p-0">
-                        <div className="aspect-[16/9] relative overflow-hidden rounded-t-lg">
-                          <img
-                            src="/placeholder.svg"
-                            alt="Article thumbnail"
-                            className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
-                          />
-                        </div>
-                      </CardHeader>
-                      <CardContent className="p-6">
-                        <div className="flex items-center space-x-4 mb-4">
-                          <Avatar>
-                            <AvatarImage src="/placeholder.svg" alt="Author" />
-                            <AvatarFallback>AU</AvatarFallback>
-                          </Avatar>
-                          <div className="text-sm">
-                            <p className="font-medium">Author Name</p>
-                            <p className="text-muted-foreground">Dec 28, 2023</p>
-                          </div>
-                        </div>
-                        <CardTitle className="mb-2 group-hover:text-primary transition-colors">
-                          <Link href={`/blog/${i}`}>Understanding TypeScript Generics</Link>
-                        </CardTitle>
-                        <CardDescription>
-                          A deep dive into TypeScript generics and their practical applications in modern web
-                          development.
-                        </CardDescription>
-                      </CardContent>
-                    </Card>
-                  ))}
+        <h2 className="text-3xl font-bold mb-8">Blogs for you</h2>
+        <div className="grid grid-cols-5 gap-6">
+          <div className="col-span-4 grid grid-cols-4 gap-6">
+            {combinedContent.map((item, index) =>
+              "content" in item ? (
+                <div key={item.id} className="bg-muted p-4 rounded-lg flex items-center justify-center">
+                  <p className="text-muted-foreground">{item.content}</p>
                 </div>
-              </TabsContent>
-
-              <TabsContent value="popular">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {[4, 5, 6].map((i) => (
-                    <Card key={i} className="group hover:shadow-lg transition-shadow border-none bg-background">
-                      <CardHeader className="p-0">
-                        <div className="aspect-[16/9] relative overflow-hidden rounded-t-lg">
-                          <img
-                            src="/placeholder.svg"
-                            alt="Article thumbnail"
-                            className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
-                          />
-                        </div>
-                      </CardHeader>
-                      <CardContent className="p-6">
-                        <div className="flex items-center space-x-4 mb-4">
-                          <Avatar>
-                            <AvatarImage src="/placeholder.svg" alt="Author" />
-                            <AvatarFallback>AU</AvatarFallback>
-                          </Avatar>
-                          <div className="text-sm">
-                            <p className="font-medium">Author Name</p>
-                            <p className="text-muted-foreground">Dec 20, 2023</p>
-                          </div>
-                        </div>
-                        <CardTitle className="mb-2 group-hover:text-primary transition-colors">
-                          <Link href={`/blog/${i}`}>Popular TypeScript Patterns</Link>
-                        </CardTitle>
-                        <CardDescription>
-                          Explore the most widely used TypeScript patterns and how they can improve your code quality.
-                        </CardDescription>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </TabsContent>
-            </Tabs>
+              ) : (
+                <Card key={item.id} className="flex flex-col">
+                  <CardHeader className="p-4">
+                    <div className="aspect-[16/9] relative overflow-hidden rounded-md mb-4">
+                      <img src="/placeholder.svg" alt="Blog thumbnail" className="object-cover w-full h-full" />
+                    </div>
+                    <CardTitle className="text-lg">{item.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4 pt-0 flex-grow">
+                    <CardDescription className="mb-4">{item.description}</CardDescription>
+                    <div className="flex items-center mt-auto">
+                      <Avatar className="h-8 w-8 mr-2">
+                        <AvatarImage src={item.author.avatar} alt={item.author.name} />
+                        <AvatarFallback>{item.author.name[0]}</AvatarFallback>
+                      </Avatar>
+                      <div className="text-sm">
+                        <p className="font-medium">{item.author.name}</p>
+                        <p className="text-muted-foreground">{item.date}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ),
+            )}
           </div>
+          <div className="col-span-1">
+            {/* Vertical Ad Space */}
+            <div className="bg-muted p-4 rounded-lg h-full flex items-center justify-center">
+              <p className="text-muted-foreground">Vertical Ad Space</p>
+            </div>
+          </div>
+        </div>
+        <div className="mt-8 text-right">
+          <Link href="/blog" className="inline-flex items-center text-primary hover:underline">
+            See more blogs
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Link>
         </div>
       </div>
     </section>
-  );
+  )
 }
+

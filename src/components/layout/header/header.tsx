@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useTheme } from "next-themes"
 import { Button } from "@/components/common/button"
-import { Settings, Sun, Moon, Laptop, Github, Twitter, Linkedin, Facebook, Instagram } from "lucide-react"
+import { Settings, Sun, Moon, Laptop, Github, Twitter, Linkedin, Facebook, Instagram, Search } from "lucide-react"
 import Image from "next/image"
 import { MobileNav } from "@/components/layout/header/mobile-nav"
 import {
@@ -12,12 +12,14 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
 } from "@/components/common/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/common/avatar"
+import { Input } from "@/components/common/input"
+import { motion } from "framer-motion"
 
 const themes = [
   { name: "Light", value: "light", icon: Sun },
@@ -60,18 +62,33 @@ export default function Header() {
             <Link href="/blog" className="text-base font-medium text-foreground hover:text-primary transition-colors">
               Blog
             </Link>
-            <Link href="/about" className="text-base font-medium text-foreground hover:text-primary transition-colors">
-              About
-            </Link>
             <Link
-              href="/subscribe"
-              className="text-base font-medium text-foreground hover:text-primary transition-colors"
+              href="/drives"
+              className="text-base font-medium text-foreground hover:text-primary transition-colors flex items-center relative"
             >
-              Subscribe
+              Drives
+              <motion.div
+                initial={{ scale: 0, rotate: -10 }}
+                animate={{ scale: 1, rotate: 10 }}
+                transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                className="absolute -top-2 -right-4"
+              >
+                <Image src="/google-drive-logo.png" alt="Google Drive Logo" width={20} height={20} />
+              </motion.div>
             </Link>
+            <Button asChild className="rounded-full">
+              <Link href="/subscribe">Subscribe</Link>
+            </Button>
           </nav>
 
           <div className="flex items-center space-x-4">
+            <div className="relative">
+              <Input type="search" placeholder="Search..." className="w-[200px] pr-8" />
+              <Button variant="ghost" size="sm" className="absolute right-0 top-0 h-full">
+                <Search className="h-4 w-4" />
+              </Button>
+            </div>
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="hover:bg-primary/10">
@@ -83,14 +100,18 @@ export default function Header() {
                 <DropdownMenuSeparator />
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger>
-                    <Sun className="mr-2 h-4 w-4" />
-                    <span>Theme</span>
+                    <div className="flex items-center">
+                      <Sun className="mr-2 h-4 w-4" />
+                      <span>Theme</span>
+                    </div>
                   </DropdownMenuSubTrigger>
                   <DropdownMenuSubContent>
                     {themes.map((item) => (
                       <DropdownMenuItem key={item.value} onClick={() => setTheme(item.value)}>
-                        <item.icon className="mr-2 h-4 w-4" />
-                        <span>{item.name}</span>
+                        <div className="flex items-center">
+                          <item.icon className="mr-2 h-4 w-4" />
+                          <span>{item.name}</span>
+                        </div>
                       </DropdownMenuItem>
                     ))}
                   </DropdownMenuSubContent>
@@ -120,4 +141,3 @@ export default function Header() {
     </header>
   )
 }
-
