@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, FormEvent } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/common/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/common/tabs"
 import { Button } from "@/components/common/button"
@@ -8,29 +8,84 @@ import { Input } from "@/components/common/input"
 import { Label } from "@/components/common/label"
 import { FcGoogle } from "react-icons/fc"
 import { AiFillGithub } from "react-icons/ai"
-import { SiDiscord, SiReddit } from "react-icons/si"
+import { SiDiscord } from "react-icons/si"
+import { BsTwitterX } from "react-icons/bs" // Using BsTwitterX for X logo
 import { motion } from "framer-motion"
+import { useToast } from "@/components/common/use-toast"
+import { useAuth } from "@/contexts/AuthContext" // Use the auth context instead of service directly
 
 interface AuthModalProps {
   isOpen: boolean
   onClose: () => void
+  onAuthSuccess?: () => void
 }
 
-export function AuthModal({ isOpen, onClose }: AuthModalProps) {
+export function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalProps) {
   const [activeTab, setActiveTab] = useState("login")
   const [isLoading, setIsLoading] = useState(false)
+  const { toast } = useToast()
+  const { login, register, initiateOAuthLogin } = useAuth() // Use the auth context
+
+  // Form states
+  const [loginForm, setLoginForm] = useState({ email: "", password: "" })
+  const [registerForm, setRegisterForm] = useState({ name: "", email: "", password: "" })
 
   const handleTabChange = (value: string) => {
     setActiveTab(value)
   }
 
+  const handleLoginSubmit = async (e: FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+
+    try {
+      await login(loginForm)
+      toast({
+        title: "Login successful",
+        description: "Welcome back!",
+        variant: "default",
+      })
+      if (onAuthSuccess) onAuthSuccess()
+      onClose()
+    } catch (error: any) {
+      toast({
+        title: "Login failed",
+        description: error.response?.data?.message || "Please check your credentials and try again",
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleRegisterSubmit = async (e: FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+
+    try {
+      await register(registerForm)
+      toast({
+        title: "Registration successful",
+        description: "Your account has been created",
+        variant: "default",
+      })
+      if (onAuthSuccess) onAuthSuccess()
+      onClose()
+    } catch (error: any) {
+      toast({
+        title: "Registration failed",
+        description: error.response?.data?.message || "Please check your information and try again",
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   const handleProviderLogin = (provider: string) => {
     setIsLoading(true)
-    // Simulate authentication process
-    setTimeout(() => {
-      setIsLoading(false)
-      alert(`Logged in with ${provider}`)
-    }, 2000)
+    // We don't need to set isLoading to false because we're redirecting
+    initiateOAuthLogin(provider)
   }
 
   return (
@@ -57,80 +112,97 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
             </TabsTrigger>
           </TabsList>
           <TabsContent value="login" className="space-y-4">
-            <form className="space-y-4">
+            <form className="space-y-4" onSubmit={handleLoginSubmit}>
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-foreground/80">
+                <Label htmlFor="login-email" className="text-foreground/80">
                   Email
                 </Label>
                 <Input
-                  id="email"
+                  id="login-email"
                   type="email"
                   placeholder="m@example.com"
                   required
                   className="rounded-lg border-border/50 focus:border-primary focus:ring-1 focus:ring-primary"
+                  value={loginForm.email}
+                  onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
+                  disabled={isLoading}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-foreground/80">
+                <Label htmlFor="login-password" className="text-foreground/80">
                   Password
                 </Label>
                 <Input
-                  id="password"
+                  id="login-password"
                   type="password"
                   required
                   className="rounded-lg border-border/50 focus:border-primary focus:ring-1 focus:ring-primary"
+                  value={loginForm.password}
+                  onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+                  disabled={isLoading}
                 />
               </div>
               <Button
                 type="submit"
                 className="w-full bg-gradient-to-r from-primary to-primary/80 text-white hover:from-primary/90 hover:to-primary/70 transition-all shadow-lg"
+                disabled={isLoading}
               >
-                Login
+                {isLoading ? "Logging in..." : "Login"}
               </Button>
             </form>
           </TabsContent>
           <TabsContent value="register" className="space-y-4">
-            <form className="space-y-4">
+            <form className="space-y-4" onSubmit={handleRegisterSubmit}>
               <div className="space-y-2">
-                <Label htmlFor="name" className="text-foreground/80">
+                <Label htmlFor="register-name" className="text-foreground/80">
                   Name
                 </Label>
                 <Input
-                  id="name"
+                  id="register-name"
                   type="text"
                   placeholder="John Doe"
                   required
                   className="rounded-lg border-border/50 focus:border-primary focus:ring-1 focus:ring-primary"
+                  value={registerForm.name}
+                  onChange={(e) => setRegisterForm({ ...registerForm, name: e.target.value })}
+                  disabled={isLoading}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-foreground/80">
+                <Label htmlFor="register-email" className="text-foreground/80">
                   Email
                 </Label>
                 <Input
-                  id="email"
+                  id="register-email"
                   type="email"
                   placeholder="m@example.com"
                   required
                   className="rounded-lg border-border/50 focus:border-primary focus:ring-1 focus:ring-primary"
+                  value={registerForm.email}
+                  onChange={(e) => setRegisterForm({ ...registerForm, email: e.target.value })}
+                  disabled={isLoading}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-foreground/80">
+                <Label htmlFor="register-password" className="text-foreground/80">
                   Password
                 </Label>
                 <Input
-                  id="password"
+                  id="register-password"
                   type="password"
                   required
                   className="rounded-lg border-border/50 focus:border-primary focus:ring-1 focus:ring-primary"
+                  value={registerForm.password}
+                  onChange={(e) => setRegisterForm({ ...registerForm, password: e.target.value })}
+                  disabled={isLoading}
                 />
               </div>
               <Button
                 type="submit"
                 className="w-full bg-gradient-to-r from-primary to-primary/80 text-white hover:from-primary/90 hover:to-primary/70 transition-all shadow-lg"
+                disabled={isLoading}
               >
-                Register
+                {isLoading ? "Creating account..." : "Register"}
               </Button>
             </form>
           </TabsContent>
@@ -149,7 +221,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
               { provider: "Google", icon: <FcGoogle className="h-5 w-5" />, color: "#4285F4" },
               { provider: "GitHub", icon: <AiFillGithub className="h-5 w-5" />, color: "#333" },
               { provider: "Discord", icon: <SiDiscord className="h-5 w-5 text-[#5865F2]" />, color: "#5865F2" },
-              { provider: "Reddit", icon: <SiReddit className="h-5 w-5 text-[#FF4500]" />, color: "#FF4500" },
+              { provider: "X", icon: <BsTwitterX className="h-5 w-5" />, color: "#000000" },
             ].map(({ provider, icon, color }) => (
               <motion.div
                 key={provider}
