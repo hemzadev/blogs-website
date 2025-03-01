@@ -18,3 +18,23 @@ export interface Author {
     blog: BlogPost;
     index: number;
   }
+  export interface Author {
+    name: string;
+    avatar: string;
+  }
+  
+  export interface BlogPost {
+    id: number;
+    title: string;
+    description: string;
+    author: Author;
+    date: string;
+    image: string;
+    category: string;
+    readTime: string;
+  }
+  
+  export interface BlogCardProps {
+    blog: BlogPost;
+    index: number;
+  }

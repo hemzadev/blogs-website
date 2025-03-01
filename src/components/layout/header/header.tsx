@@ -20,6 +20,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/common/avatar"
 import { Input } from "@/components/common/input"
 import { motion } from "framer-motion"
+import { AuthButton } from "@/components/common/AuthButton" // Import the AuthButton component
 
 const themes = [
   { name: "Light", value: "light", icon: Sun },
@@ -128,6 +129,8 @@ export default function Header() {
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
+
+            <AuthButton /> {/* Add the AuthButton here */}
 
             <Avatar>
               <AvatarImage src="/placeholder.svg" />

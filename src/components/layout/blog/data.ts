@@ -1,19 +1,19 @@
-// src/components/layout/blog/data.ts
-import type { BlogPost } from './types'
+import { BlogPost } from './types'
 
 export const blogs: BlogPost[] = Array(12)
   .fill(null)
   .map((_, i) => ({
     id: i + 1,
-    title: `Blog Post ${i + 1}`,
-    description: "A deep dive into modern web development techniques and best practices.",
+    title: `Exploring ${["React", "Next.js", "TypeScript", "TailwindCSS", "Node.js"][i % 5]} - Part ${Math.floor(i / 5) + 1}`,
+    description: "Dive deep into modern web development techniques and best practices with our comprehensive guide.",
     author: {
-      name: `Author ${i + 1}`,
-      avatar: "/placeholder.svg",
+      name: `${["Sarah", "John", "Emily", "Michael", "Jessica"][i % 5]} ${["Smith", "Doe", "Johnson", "Brown", "Davis"][i % 5]}`,
+      avatar: `/avatars/avatar-${(i % 5) + 1}.jpg`,
     },
-    date: "Jan 1, 2024",
-    image: `https://source.unsplash.com/random/800x600?tech,coding?sig=${i}`,
-    category: ["Code", "Data", "Editing", "Design", "AI"][Math.floor(Math.random() * 5)],
+    date: `${["Jan", "Feb", "Mar", "Apr", "May"][i % 5]} ${i + 1}, 2024`,
+    image: `https://source.unsplash.com/featured/800x600?programming,coding&sig=${i}`,
+    category: ["Frontend", "Backend", "DevOps", "Mobile", "AI"][Math.floor(Math.random() * 5)],
+    readTime: `${Math.floor(Math.random() * 10) + 5} min read`,
   }))
 
-export const keywords = ["Code", "Data", "Editing", "Design", "AI", "Web Development", "Mobile", "Cloud"] as const
+export const keywords = ["Frontend", "Backend", "DevOps", "Mobile", "AI", "Web Development", "Cloud", "Data Science"]

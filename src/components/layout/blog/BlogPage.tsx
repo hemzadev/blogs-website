@@ -1,140 +1,292 @@
-// src/components/layout/blog/BlogPage.tsx
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/common/card"
 import { Input } from "@/components/common/input"
 import { Button } from "@/components/common/button"
 import { Search, ArrowRight } from "lucide-react"
-import { blogs, keywords } from "./data"
-import type { BlogPost, BlogCardProps } from "./types"
+import { motion } from "framer-motion"
+import { ParticlesBackground } from "@/components/common/ParticlesBackground"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/common/avatar"
 
-export function BlogPage() {
+// Mock data for blogs (unchanged)
+const blogs = Array(12)
+  .fill(null)
+  .map((_, i) => ({
+    id: i + 1,
+    title: `Exploring ${["React", "Next.js", "TypeScript", "TailwindCSS", "Node.js"][i % 5]} - Part ${Math.floor(i / 5) + 1}`,
+    description: "Dive deep into modern web development techniques and best practices with our comprehensive guide.",
+    author: {
+      name: `${["Sarah", "John", "Emily", "Michael", "Jessica"][i % 5]} ${["Smith", "Doe", "Johnson", "Brown", "Davis"][i % 5]}`,
+      avatar: `/avatars/avatar-${(i % 5) + 1}.jpg`,
+    },
+    date: `${["Jan", "Feb", "Mar", "Apr", "May"][i % 5]} ${i + 1}, 2024`,
+    image: `/placeholder.svg`,
+    category: ["Frontend", "Backend", "DevOps", "Mobile", "AI"][Math.floor(Math.random() * 5)],
+  }))
+
+// Keywords for search
+const keywords = ["Frontend", "Backend", "DevOps", "Mobile", "AI", "Web Development", "Cloud", "Data Science"]
+
+export default function BlogPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedKeyword, setSelectedKeyword] = useState("")
+  const [filteredBlogs, setFilteredBlogs] = useState(blogs)
 
-  const filteredBlogs = blogs.filter(
-    (blog) =>
-      blog.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      blog.category.toLowerCase().includes(selectedKeyword.toLowerCase()),
-  )
+  useEffect(() => {
+    const filtered = blogs.filter(
+      (blog) =>
+        (blog.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          blog.category.toLowerCase().includes(searchTerm.toLowerCase())) &&
+        (selectedKeyword === "" || blog.category === selectedKeyword),
+    )
+    setFilteredBlogs(filtered)
+  }, [searchTerm, selectedKeyword])
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold mb-8">Blog Articles</h1>
+    <div className="min-h-screen bg-background py-16 px-4">
+      <ParticlesBackground />
 
-      {/* Search and keywords section */}
-      <div className="mb-8">
-        <div className="relative">
-          <Input
-            type="search"
-            placeholder="Search articles..."
-            className="pl-10 pr-4 py-2"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-        </div>
-        <div className="flex flex-wrap gap-2 mt-4">
-          {keywords.map((keyword) => (
-            <Button
-              key={keyword}
-              variant="outline"
-              size="sm"
-              onClick={() => setSelectedKeyword(keyword)}
-              className={selectedKeyword === keyword ? "bg-primary text-primary-foreground" : ""}
-            >
-              {keyword}
-            </Button>
+      <div className="container mx-auto px-4 relative z-10">
+        <motion.h1
+          className="text-4xl font-bold mb-8 text-center"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          Explore Our Blog
+        </motion.h1>
+
+        {/* Search and keywords section */}
+        <motion.div
+          className="mb-12"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <div className="relative max-w-2xl mx-auto mb-6">
+            <Input
+              type="search"
+              placeholder="Search articles..."
+              className="pl-10"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={20} />
+          </div>
+          <div className="flex flex-wrap justify-center gap-2">
+            {keywords.map((keyword) => (
+              <Button
+                key={keyword}
+                variant={selectedKeyword === keyword ? "secondary" : "outline"}
+                size="sm"
+                onClick={() => setSelectedKeyword(keyword === selectedKeyword ? "" : keyword)}
+              >
+                {keyword}
+              </Button>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Blog grid */}
+        <div className="grid grid-cols-4 gap-6">
+          {/* Row 1: 4 blog cards */}
+          {filteredBlogs.slice(0, 4).map((blog) => (
+            <Card key={blog.id} className="flex flex-col">
+              <CardHeader className="p-4">
+                <div className="aspect-[16/9] relative overflow-hidden rounded-md mb-4">
+                  <img src="/placeholder.svg" alt="Blog thumbnail" className="object-cover w-full h-full" />
+                </div>
+                <CardTitle className="text-lg">{blog.title}</CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 pt-0 flex-grow">
+                <CardDescription className="mb-4">{blog.description}</CardDescription>
+                <div className="flex items-center mt-auto">
+                  <Avatar className="h-8 w-8 mr-2">
+                    <AvatarImage src={blog.author.avatar} alt={blog.author.name} />
+                    <AvatarFallback>{blog.author.name[0]}</AvatarFallback>
+                  </Avatar>
+                  <div className="text-sm">
+                    <p className="font-medium">{blog.author.name}</p>
+                    <p className="text-muted-foreground">{blog.date}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+
+          {/* Row 2: Blog card, Ad card, Blog card, Vertical Ad */}
+          <Card className="flex flex-col">
+            <CardHeader className="p-4">
+              <div className="aspect-[16/9] relative overflow-hidden rounded-md mb-4">
+                <img src="/placeholder.svg" alt="Blog thumbnail" className="object-cover w-full h-full" />
+              </div>
+              <CardTitle className="text-lg">{filteredBlogs[4].title}</CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 pt-0 flex-grow">
+              <CardDescription className="mb-4">{filteredBlogs[4].description}</CardDescription>
+              <div className="flex items-center mt-auto">
+                <Avatar className="h-8 w-8 mr-2">
+                  <AvatarImage src={filteredBlogs[4].author.avatar} alt={filteredBlogs[4].author.name} />
+                  <AvatarFallback>{filteredBlogs[4].author.name[0]}</AvatarFallback>
+                </Avatar>
+                <div className="text-sm">
+                  <p className="font-medium">{filteredBlogs[4].author.name}</p>
+                  <p className="text-muted-foreground">{filteredBlogs[4].date}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <div className="bg-muted p-4 rounded-lg flex items-center justify-center">
+            <p className="text-muted-foreground">Ad Space 1</p>
+          </div>
+          <Card className="flex flex-col">
+            <CardHeader className="p-4">
+              <div className="aspect-[16/9] relative overflow-hidden rounded-md mb-4">
+                <img src="/placeholder.svg" alt="Blog thumbnail" className="object-cover w-full h-full" />
+              </div>
+              <CardTitle className="text-lg">{filteredBlogs[5].title}</CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 pt-0 flex-grow">
+              <CardDescription className="mb-4">{filteredBlogs[5].description}</CardDescription>
+              <div className="flex items-center mt-auto">
+                <Avatar className="h-8 w-8 mr-2">
+                  <AvatarImage src={filteredBlogs[5].author.avatar} alt={filteredBlogs[5].author.name} />
+                  <AvatarFallback>{filteredBlogs[5].author.name[0]}</AvatarFallback>
+                </Avatar>
+                <div className="text-sm">
+                  <p className="font-medium">{filteredBlogs[5].author.name}</p>
+                  <p className="text-muted-foreground">{filteredBlogs[5].date}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <div className="bg-muted p-4 rounded-lg flex items-center justify-center col-span-1 row-span-3">
+            <p className="text-muted-foreground">Vertical Ad Space</p>
+          </div>
+
+          {/* Row 3: Blog card, Blog card, Ad card, Vertical Ad */}
+          <Card className="flex flex-col">
+            <CardHeader className="p-4">
+              <div className="aspect-[16/9] relative overflow-hidden rounded-md mb-4">
+                <img src="/placeholder.svg" alt="Blog thumbnail" className="object-cover w-full h-full" />
+              </div>
+              <CardTitle className="text-lg">{filteredBlogs[6].title}</CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 pt-0 flex-grow">
+              <CardDescription className="mb-4">{filteredBlogs[6].description}</CardDescription>
+              <div className="flex items-center mt-auto">
+                <Avatar className="h-8 w-8 mr-2">
+                  <AvatarImage src={filteredBlogs[6].author.avatar} alt={filteredBlogs[6].author.name} />
+                  <AvatarFallback>{filteredBlogs[6].author.name[0]}</AvatarFallback>
+                </Avatar>
+                <div className="text-sm">
+                  <p className="font-medium">{filteredBlogs[6].author.name}</p>
+                  <p className="text-muted-foreground">{filteredBlogs[6].date}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="flex flex-col">
+            <CardHeader className="p-4">
+              <div className="aspect-[16/9] relative overflow-hidden rounded-md mb-4">
+                <img src="/placeholder.svg" alt="Blog thumbnail" className="object-cover w-full h-full" />
+              </div>
+              <CardTitle className="text-lg">{filteredBlogs[7].title}</CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 pt-0 flex-grow">
+              <CardDescription className="mb-4">{filteredBlogs[7].description}</CardDescription>
+              <div className="flex items-center mt-auto">
+                <Avatar className="h-8 w-8 mr-2">
+                  <AvatarImage src={filteredBlogs[7].author.avatar} alt={filteredBlogs[7].author.name} />
+                  <AvatarFallback>{filteredBlogs[7].author.name[0]}</AvatarFallback>
+                </Avatar>
+                <div className="text-sm">
+                  <p className="font-medium">{filteredBlogs[7].author.name}</p>
+                  <p className="text-muted-foreground">{filteredBlogs[7].date}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <div className="bg-muted p-4 rounded-lg flex items-center justify-center">
+            <p className="text-muted-foreground">Ad Space 2</p>
+          </div>
+
+          {/* Row 4: Ad card, Blog card, Blog card, Vertical Ad */}
+          <div className="bg-muted p-4 rounded-lg flex items-center justify-center">
+            <p className="text-muted-foreground">Ad Space 3</p>
+          </div>
+          <Card className="flex flex-col">
+            <CardHeader className="p-4">
+              <div className="aspect-[16/9] relative overflow-hidden rounded-md mb-4">
+                <img src="/placeholder.svg" alt="Blog thumbnail" className="object-cover w-full h-full" />
+              </div>
+              <CardTitle className="text-lg">{filteredBlogs[8].title}</CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 pt-0 flex-grow">
+              <CardDescription className="mb-4">{filteredBlogs[8].description}</CardDescription>
+              <div className="flex items-center mt-auto">
+                <Avatar className="h-8 w-8 mr-2">
+                  <AvatarImage src={filteredBlogs[8].author.avatar} alt={filteredBlogs[8].author.name} />
+                  <AvatarFallback>{filteredBlogs[8].author.name[0]}</AvatarFallback>
+                </Avatar>
+                <div className="text-sm">
+                  <p className="font-medium">{filteredBlogs[8].author.name}</p>
+                  <p className="text-muted-foreground">{filteredBlogs[8].date}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="flex flex-col">
+            <CardHeader className="p-4">
+              <div className="aspect-[16/9] relative overflow-hidden rounded-md mb-4">
+                <img src="/placeholder.svg" alt="Blog thumbnail" className="object-cover w-full h-full" />
+              </div>
+              <CardTitle className="text-lg">{filteredBlogs[9].title}</CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 pt-0 flex-grow">
+              <CardDescription className="mb-4">{filteredBlogs[9].description}</CardDescription>
+              <div className="flex items-center mt-auto">
+                <Avatar className="h-8 w-8 mr-2">
+                  <AvatarImage src={filteredBlogs[9].author.avatar} alt={filteredBlogs[9].author.name} />
+                  <AvatarFallback>{filteredBlogs[9].author.name[0]}</AvatarFallback>
+                </Avatar>
+                <div className="text-sm">
+                  <p className="font-medium">{filteredBlogs[9].author.name}</p>
+                  <p className="text-muted-foreground">{filteredBlogs[9].date}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Row 5: 4 blog cards */}
+          {filteredBlogs.slice(10, 14).map((blog) => (
+            <Card key={blog.id} className="flex flex-col">
+              <CardHeader className="p-4">
+                <div className="aspect-[16/9] relative overflow-hidden rounded-md mb-4">
+                  <img src="/placeholder.svg" alt="Blog thumbnail" className="object-cover w-full h-full" />
+                </div>
+                <CardTitle className="text-lg">{blog.title}</CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 pt-0 flex-grow">
+                <CardDescription className="mb-4">{blog.description}</CardDescription>
+                <div className="flex items-center mt-auto">
+                  <Avatar className="h-8 w-8 mr-2">
+                    <AvatarImage src={blog.author.avatar} alt={blog.author.name} />
+                    <AvatarFallback>{blog.author.name[0]}</AvatarFallback>
+                  </Avatar>
+                  <div className="text-sm">
+                    <p className="font-medium">{blog.author.name}</p>
+                    <p className="text-muted-foreground">{blog.date}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       </div>
-
-      {/* Blog cards and ad spaces */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredBlogs.map((blog, index) => (
-          <BlogCard
-            key={blog.id}
-            blog={blog}
-            index={index}
-          />
-        ))}
-      </div>
     </div>
-  )
-}
-
-function BlogCard({ blog, index }: BlogCardProps) {
-  const adSpace = (index + 1) % 3 === 0 && (
-    <div className="col-span-1 md:col-span-2 lg:col-span-3">
-      <div className="bg-muted p-4 rounded-lg flex items-center justify-center h-32">
-        <p className="text-muted-foreground">Ad Space</p>
-      </div>
-    </div>
-  )
-
-  const subscribeSection = (index + 1) % 6 === 0 && (
-    <div className="col-span-1 md:col-span-2 lg:col-span-3">
-      <Card className="bg-primary text-primary-foreground p-6">
-        <CardHeader>
-          <CardTitle>Subscribe to Our Newsletter</CardTitle>
-          <CardDescription className="text-primary-foreground/80">
-            Get the latest articles delivered right to your inbox.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form className="flex gap-2">
-            <Input type="email" placeholder="Enter your email" className="bg-primary-foreground text-primary" />
-            <Button type="submit" variant="secondary">
-              Subscribe
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
-  )
-
-  return (
-    <>
-      <Card>
-        <CardHeader>
-          <div className="aspect-video relative overflow-hidden rounded-lg mb-3">
-            <Image
-              src={blog.image || "/placeholder.svg"}
-              alt={blog.title}
-              fill
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            />
-          </div>
-          <CardTitle>{blog.title}</CardTitle>
-          <CardDescription>{blog.description}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Image
-                src={blog.author.avatar || "/placeholder.svg"}
-                alt={blog.author.name}
-                width={24}
-                height={24}
-                className="rounded-full"
-              />
-              <span className="text-sm text-muted-foreground">{blog.author.name}</span>
-            </div>
-            <span className="text-sm text-muted-foreground">{blog.date}</span>
-          </div>
-          <div className="mt-4">
-            <Link href={`/blog/${blog.id}`} className="text-primary hover:underline inline-flex items-center">
-              Read More <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
-      {adSpace}
-      {subscribeSection}
-    </>
   )
 }
